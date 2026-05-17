@@ -4,33 +4,118 @@ trigger:
       - main
       - master
 
+# Aici importăm parola ACR și setăm conexiunea cu Azure
+variables:
+  - group: acr-credentials
+  - name: serviceConnection
+    value: 'azure-service-connection'
+  - name: resourceGroup
+    value: 'rg-yachtsshop'
+
 pool:
-  # Folosim un agent gratuit de la Microsoft cu Ubuntu (sau poți pune numele agentului tău local dacă ai făcut Section 5 din lab)
   vmImage: 'ubuntu-latest'
 
-steps:
-  # ─── BUILD & TEST: YACHT CATALOG SERVICE ───────────────────────
-  - task: Maven@4
-    displayName: 'Build & Test Yacht Catalog Service'
-    inputs:
-      mavenPomFile: 'yacht-catalog-service/pom.xml'
-      mavenOptions: '-Xmx3072m'
-      javaHomeOption: 'JDKVersion'
-      jdkVersionOption: '17'
-      jdkArchitectureOption: 'x64'
-      publishJUnitResults: true
-      testResultsFiles: '**/surefire-reports/TEST-*.xml'
-      goals: 'clean package'
+stages:
+  # ═══════════════════════════════════════════════════════
+  # STAGE 1: COMPILARE & BUILD DOCKER (CI)
+  # ═══════════════════════════════════════════════════════
+  - stage: BuildAndPush
+    displayName: 'Build and Push Docker Images'
+    jobs:
+      - job: DockerBuild
+        steps:
+          # 1. Ne autentificăm în registrul tău din Azure (ACR)
+          - task: Bash@3
+            displayName: 'Login to ACR'
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker login $(ACR_SERVER) -u $(ACR_USERNAME) -p $(ACR_PASSWORD)
 
-  # ─── BUILD & TEST: ORDER SERVICE ───────────────────────────────
-  - task: Maven@4
-    displayName: 'Build & Test Order Service'
-    inputs:
-      mavenPomFile: 'order-service/pom.xml'
-      mavenOptions: '-Xmx3072m'
-      javaHomeOption: 'JDKVersion'
-      jdkVersionOption: '17'
-      jdkArchitectureOption: 'x64'
-      publishJUnitResults: true
-      testResultsFiles: '**/surefire-reports/TEST-*.xml'
-      goals: 'clean package'
+          # 2. Compilăm și trimitem imaginea pentru Catalog
+          - task: Bash@3
+            displayName: 'Build & Push Yacht Catalog'
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker build -t $(ACR_SERVER)/yacht-catalog:$(Build.BuildId) -t $(ACR_SERVER)/yacht-catalog:latest ./yacht-catalog-service
+                docker push $(ACR_SERVER)/yacht-catalog:$(Build.BuildId)
+                docker push $(ACR_SERVER)/yacht-catalog:latest
+
+          # 3. Compilăm și trimitem imaginea pentru Comenzi
+          - task: Bash@3
+            displayName: 'Build & Push Order Service'
+            inputs:
+              targetType: 'inline'
+              script: |
+                docker build -t $(ACR_SERVER)/order-service:$(Build.BuildId) -t $(ACR_SERVER)/order-service:latest ./order-service
+                docker push $(ACR_SERVER)/order-service:$(Build.BuildId)
+                docker push $(ACR_SERVER)/order-service:latest
+
+  # ═══════════════════════════════════════════════════════
+  # STAGE 2: DEPLOYMENT ÎN AZURE CONTAINER APPS (CD)
+  # ═══════════════════════════════════════════════════════
+  - stage: Deploy
+    displayName: 'Deploy to Azure Container Apps'
+    dependsOn: BuildAndPush
+    condition: succeeded()
+    jobs:
+      - deployment: DeployACA
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # --- Deployment pentru Yacht Catalog ---
+                - task: AzureCLI@2
+                  displayName: 'Set Registry Creds - Yacht Catalog'
+                  inputs:
+                    azureSubscription: '$(serviceConnection)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az containerapp registry set \
+                        --name ca-yacht-catalog \
+                        --resource-group $(resourceGroup) \
+                        --server $(ACR_SERVER) \
+                        --username $(ACR_USERNAME) \
+                        --password $(ACR_PASSWORD)
+
+                - task: AzureCLI@2
+                  displayName: 'Update Image - Yacht Catalog'
+                  inputs:
+                    azureSubscription: '$(serviceConnection)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az containerapp update \
+                        --name ca-yacht-catalog \
+                        --resource-group $(resourceGroup) \
+                        --image $(ACR_SERVER)/yacht-catalog:$(Build.BuildId)
+
+                # --- Deployment pentru Order Service ---
+                - task: AzureCLI@2
+                  displayName: 'Set Registry Creds - Order Service'
+                  inputs:
+                    azureSubscription: '$(serviceConnection)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az containerapp registry set \
+                        --name ca-order-service \
+                        --resource-group $(resourceGroup) \
+                        --server $(ACR_SERVER) \
+                        --username $(ACR_USERNAME) \
+                        --password $(ACR_PASSWORD)
+
+                - task: AzureCLI@2
+                  displayName: 'Update Image - Order Service'
+                  inputs:
+                    azureSubscription: '$(serviceConnection)'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az containerapp update \
+                        --name ca-order-service \
+                        --resource-group $(resourceGroup) \
+                        --image $(ACR_SERVER)/order-service:$(Build.BuildId)
