@@ -1,0 +1,27 @@
+services:
+  yacht-catalog:
+    build:
+      context: ./yacht-catalog-service
+    container_name: yacht-catalog
+    ports:
+      - "8081:8081"
+    networks:
+      - shop-network
+
+  order-service:
+    build:
+      context: ./order-service
+    container_name: order-service
+    ports:
+      - "8082:8082"
+    environment:
+      # Aici îi spunem să folosească numele containerului de catalog, nu localhost!
+      - YACHT_CATALOG_URL=http://yacht-catalog:8081
+    networks:
+      - shop-network
+    depends_on:
+      - yacht-catalog
+
+networks:
+  shop-network:
+    driver: bridge
