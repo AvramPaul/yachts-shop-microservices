@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yachts Shop — Luxury Fleet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy:        #060f1e;
+            --navy-mid:    #0b1f38;
+            --navy-light:  #112944;
+            --gold:        #c9a84c;
+            --gold-light:  #e2c97e;
+            --white:       #f5f0e8;
+            --muted:       #7a8fa8;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--navy);
+            color: var(--white);
+            font-family: 'Lato', sans-serif;
+            font-weight: 300;
+            overflow-x: hidden;
+        }
+
+        /* ── HERO ─────────────────────────────────────────────────────── */
+        .hero {
+            height: 100vh;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: var(--navy);
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                url('https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=1920&q=60')
+                center / cover no-repeat;
+            opacity: 0.12;
+            transform: scale(1.05);
+            animation: slowZoom 20s ease-in-out infinite alternate;
+        }
+
+        .hero-vignette {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 30%, var(--navy) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 0 2rem;
+        }
+
+        .hero-eyebrow {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 400;
+            letter-spacing: 0.6em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1.75rem;
+            opacity: 0;
+            animation: fadeUp 1s 0.4s ease forwards;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 700;
+            line-height: 0.9;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: fadeUp 1s 0.7s ease forwards;
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--gold);
+            display: block;
+        }
+
+        .hero-tagline {
+            font-size: 0.8rem;
+            font-weight: 300;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--muted);
+            opacity: 0;
+            animation: fadeUp 1s 1s ease forwards;
+        }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            z-index: 2;
+            opacity: 0;
+            animation: fadeUp 1s 1.8s ease forwards;
+        }
+
+        .scroll-text {
+            font-size: 0.6rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 50px;
+            background: linear-gradient(to bottom, var(--gold) 0%, transparent 100%);
+            animation: scrollPulse 2s 2.5s ease-in-out infinite;
+        }
+
+        /* ── FLEET SECTION ────────────────────────────────────────────── */
+        .fleet {
+            padding: 7rem 2rem 6rem;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.55em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1.25rem;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 400;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+        }
+
+        .divider {
+            width: 48px;
+            height: 1px;
+            background: var(--gold);
+            margin: 0 auto;
+        }
+
+        /* Loading / Error */
+        .state-msg {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--muted);
+        }
+
+        .state-msg .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .state-msg p {
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            line-height: 1.8;
+        }
+
+        .dots-anim::after {
+            content: '';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+
+        /* ── YACHT GRID ───────────────────────────────────────────────── */
+        .yacht-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+        }
+
+        @media (max-width: 960px) {
+            .yacht-grid { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
+        }
+
+        /* ── YACHT CARD ───────────────────────────────────────────────── */
+        .yacht-card {
+            position: relative;
+            aspect-ratio: 9/16;
+            overflow: hidden;
+            cursor: default;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .yacht-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .yacht-card:nth-child(2) { transition-delay: 0.15s; }
+        .yacht-card:nth-child(3) { transition-delay: 0.3s; }
+
+        .card-video {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .yacht-card:hover .card-video {
+            transform: scale(1.06);
+        }
+
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to top,
+                rgba(4, 10, 20, 0.97) 0%,
+                rgba(4, 10, 20, 0.65) 40%,
+                rgba(4, 10, 20, 0.15) 70%,
+                rgba(4, 10, 20, 0.05) 100%
+            );
+            transition: background 0.5s ease;
+        }
+
+        .yacht-card:hover .card-overlay {
+            background: linear-gradient(
+                to top,
+                rgba(4, 10, 20, 0.98) 0%,
+                rgba(4, 10, 20, 0.78) 50%,
+                rgba(4, 10, 20, 0.3) 100%
+            );
+        }
+
+        .card-number {
+            position: absolute;
+            top: 1.75rem;
+            left: 1.75rem;
+            font-size: 0.6rem;
+            letter-spacing: 0.45em;
+            text-transform: uppercase;
+            color: var(--gold);
+            opacity: 0.8;
+        }
+
+        .card-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem 2rem 2.5rem;
+        }
+
+        .card-name {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1.15;
+            margin-bottom: 0.4rem;
+        }
+
+        .card-price {
+            font-size: 1.05rem;
+            font-weight: 300;
+            color: var(--gold-light);
+            letter-spacing: 0.05em;
+            margin-bottom: 1.75rem;
+        }
+
+        .card-price sup {
+            font-size: 0.65em;
+            vertical-align: super;
+        }
+
+        /* ── ORDER BUTTON ─────────────────────────────────────────────── */
+        .btn-order {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.8rem 1.8rem;
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--white);
+            font-family: 'Lato', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            cursor: pointer;
+            overflow: hidden;
+            transition: color 0.35s ease;
+        }
+
+        .btn-order::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gold);
+            transform: translateX(-100%);
+            transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 0;
+        }
+
+        .btn-order:hover::before { transform: translateX(0); }
+        .btn-order:hover { color: var(--navy); }
+        .btn-order > * { position: relative; z-index: 1; }
+
+        .btn-order:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn-order.done {
+            border-color: #3aad6f;
+            color: #3aad6f;
+            pointer-events: none;
+        }
+
+        .btn-order.done::before { display: none; }
+
+        .spinner-sm {
+            display: inline-block;
+            width: 11px;
+            height: 11px;
+            border: 1.5px solid rgba(255,255,255,0.3);
+            border-top-color: var(--white);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+
+        /* ── TOAST ────────────────────────────────────────────────────── */
+        #toast-area {
+            position: fixed;
+            top: 1.75rem;
+            right: 1.75rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            pointer-events: none;
+        }
+
+        .toast {
+            min-width: 300px;
+            padding: 1.1rem 1.4rem;
+            background: var(--navy-light);
+            border: 1px solid rgba(201, 168, 76, 0.25);
+            border-left: 3px solid var(--gold);
+            pointer-events: all;
+            animation: slideToast 0.4s ease forwards;
+        }
+
+        .toast.toast-error { border-left-color: #c94c4c; }
+
+        .toast-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            color: var(--white);
+            margin-bottom: 0.2rem;
+        }
+
+        .toast-body {
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        /* ── FOOTER NAV ───────────────────────────────────────────────── */
+        .footer {
+            padding: 3.5rem 2rem 4rem;
+            text-align: center;
+            border-top: 1px solid rgba(201, 168, 76, 0.12);
+        }
+
+        .footer-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.7rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .footer-link:hover { color: var(--gold); }
+
+        .footer-link svg {
+            transition: transform 0.3s;
+        }
+
+        .footer-link:hover svg { transform: translateX(4px); }
+
+        /* ── ANIMATIONS ───────────────────────────────────────────────── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slowZoom {
+            from { transform: scale(1.05); }
+            to   { transform: scale(1.12); }
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 0.3; transform: scaleY(0.5); transform-origin: top; }
+            50%       { opacity: 1;   transform: scaleY(1);   transform-origin: top; }
+        }
+
+        @keyframes dots {
+            0%   { content: ''; }
+            33%  { content: '.'; }
+            66%  { content: '..'; }
+            100% { content: '...'; }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideToast {
+            from { transform: translateX(120%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Toast container -->
+<div id="toast-area"></div>
+
+<!-- ── HERO ──────────────────────────────────────────────────────────── -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-vignette"></div>
+    <div class="hero-content">
+        <span class="hero-eyebrow">⚓ &nbsp; Est. 2025 &nbsp; ⚓</span>
+        <h1 class="hero-title">
+            Yachts
+            <em>Shop</em>
+        </h1>
+        <p class="hero-tagline">Curated Luxury Fleet &mdash; Sail with Distinction</p>
+    </div>
+    <div class="hero-scroll">
+        <div class="scroll-line"></div>
+        <span class="scroll-text">Explore Fleet</span>
+    </div>
+</section>
+
+<!-- ── FLEET ─────────────────────────────────────────────────────────── -->
+<section class="fleet">
+    <div class="section-header">
+        <p class="section-label">Our Collection</p>
+        <h2 class="section-title">The Fleet</h2>
+        <div class="divider"></div>
+    </div>
+    <div id="fleet-container">
+        <div class="state-msg">
+            <span class="icon">⚓</span>
+            <p><span class="dots-anim">Loading fleet</span></p>
+        </div>
+    </div>
+</section>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
+<footer class="footer">
+    <a href="http://localhost:8082" class="footer-link">
+        <span>View All Orders</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 7h10M7.5 2.5L12 7l-4.5 4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </a>
+</footer>
+
+<script>
+    // ── Config ──────────────────────────────────────────────────────────────────
+    const ORDER_API   = 'https://ca-order-service.kinddesert-607bfa92.germanywestcentral.azurecontainerapps.io';
+    const CUSTOMER    = 'Paul Avram';
+
+    // Free video sources (replace with your own if needed)
+    const YACHT_MEDIA = [
+        {
+            video:  'https://assets.mixkit.co/videos/preview/mixkit-yacht-sailing-in-the-sea-1218-large.mp4',
+            poster: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?auto=format&fit=crop&w=800&q=75'
+        },
+        {
+            video:  'https://assets.mixkit.co/videos/preview/mixkit-luxury-yacht-sailing-in-open-sea-41227-large.mp4',
+            poster: 'https://images.unsplash.com/photo-1605281317010-fe5ffe798166?auto=format&fit=crop&w=800&q=75'
+        },
+        {
+            video:  'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-sailboat-on-the-sea-32990-large.mp4',
+            poster: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=75'
+        }
+    ];
+
+    // ── Helpers ─────────────────────────────────────────────────────────────────
+    function formatPrice(val) {
+        return '$' + new Intl.NumberFormat('en-US').format(Number(val));
+    }
+
+    function toast(title, body, isError = false) {
+        const area = document.getElementById('toast-area');
+        const el   = document.createElement('div');
+        el.className = 'toast' + (isError ? ' toast-error' : '');
+        el.innerHTML = `<div class="toast-title">${title}</div><div class="toast-body">${body}</div>`;
+        area.appendChild(el);
+        setTimeout(() => el.remove(), 4500);
+    }
+
+    // ── Render card ──────────────────────────────────────────────────────────────
+    function buildCard(yacht, idx) {
+        const media = YACHT_MEDIA[idx] || YACHT_MEDIA[0];
+
+        const card = document.createElement('div');
+        card.className = 'yacht-card';
+
+        card.innerHTML = `
+            <video class="card-video" autoplay muted loop playsinline
+                   poster="${media.poster}"
+                   src="${media.video}">
+            </video>
+            <div class="card-overlay"></div>
+            <div class="card-number">Vessel / ${String(idx + 1).padStart(2, '0')}</div>
+            <div class="card-info">
+                <div class="card-name">${yacht.name ?? 'Luxury Yacht'}</div>
+                <div class="card-price"><sup>$</sup>${new Intl.NumberFormat('en-US').format(yacht.price ?? 0)}</div>
+                <button
+                    class="btn-order"
+                    id="btn-${yacht.id}"
+                    onclick="placeOrder(${yacht.id}, this)">
+                    <span>Place Order</span>
+                </button>
+            </div>
+        `;
+
+        return card;
+    }
+
+    // ── Load yachts ──────────────────────────────────────────────────────────────
+    async function loadFleet() {
+        const container = document.getElementById('fleet-container');
+        try {
+            const res    = await fetch('/yachts');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const yachts = await res.json();
+
+            if (!yachts.length) {
+                container.innerHTML = `
+                    <div class="state-msg">
+                        <span class="icon">⚓</span>
+                        <p>No vessels found in the fleet.</p>
+                    </div>`;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'yacht-grid';
+            yachts.forEach((yacht, i) => grid.appendChild(buildCard(yacht, i)));
+            container.innerHTML = '';
+            container.appendChild(grid);
+
+            // Reveal cards with stagger
+            requestAnimationFrame(() => {
+                grid.querySelectorAll('.yacht-card').forEach((c, i) =>
+                    setTimeout(() => c.classList.add('visible'), i * 180)
+                );
+            });
+
+        } catch (err) {
+            container.innerHTML = `
+                <div class="state-msg">
+                    <span class="icon">⚠</span>
+                    <p>Could not connect to the catalog service.<br>
+                    Make sure <code style="color:var(--gold)">yacht-catalog-service</code> is running on port 8081.</p>
+                </div>`;
+        }
+    }
+
+    // ── Place order ──────────────────────────────────────────────────────────────
+    async function placeOrder(yachtId, btn) {
+        btn.disabled = true;
+        const orig = btn.innerHTML;
+        btn.innerHTML = `<span class="spinner-sm"></span><span>Processing…</span>`;
+
+        try {
+            const res = await fetch(
+                `${ORDER_API}/orders/place/${yachtId}?customerName=${encodeURIComponent(CUSTOMER)}`,
+                { method: 'POST' }
+            );
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const order = await res.json();
+
+            btn.className = 'btn-order done';
+            btn.innerHTML = `<span>✓ &nbsp;Order Confirmed</span>`;
+
+            // 1. Updated the toast message to mention the redirect
+            toast(
+                'Order Confirmed',
+                `Order #${order.id} placed for ${CUSTOMER}. Redirecting to Order Log...`
+            );
+
+            // Redirecting to the receipt page
+            setTimeout(() => {
+                window.location.href = `${ORDER_API}/order-receipt.html?id=${order.id}`;
+            }, 1500);
+
+        } catch (err) {
+            btn.disabled = false;
+            btn.innerHTML = orig;
+            toast(
+                'Order Failed',
+                'Could not reach order-service. Check CORS config & port 8082.',
+                true
+            );
+        }
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────────
+    loadFleet();
+</script>
+</body>
+</html>

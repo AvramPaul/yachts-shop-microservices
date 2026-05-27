@@ -38,6 +38,13 @@ public class OrderController {
         return orderRepository.save(newOrder);
     }
 
+    // Endpoint pentru a vedea O SINGURA comanda in format JSON (perfect pentru prezentare)
+    @GetMapping("/{id}")
+    public Order getOrderById(@PathVariable Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Comanda nu a fost gasita!"));
+    }
+
     // Endpoint pentru a vedea toate comenzile
     @GetMapping
     public List<Order> getAllOrders() {

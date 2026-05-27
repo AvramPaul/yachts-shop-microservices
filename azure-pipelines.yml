@@ -118,4 +118,5 @@ stages:
                       az containerapp update \
                         --name ca-order-service \
                         --resource-group $(resourceGroup) \
-                        --image $(ACR_SERVER)/order-service:$(Build.BuildId)
+                        --image $(ACR_SERVER)/order-service:$(Build.BuildId) \
+                        --set-env-vars CATALOG_FRONTEND_URL=https://ca-yacht-catalog.kinddesert-607bfa92.germanywestcentral.azurecontainerapps.io YACHT_CATALOG_URL=http://ca-yacht-catalog

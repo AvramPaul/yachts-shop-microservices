@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yachts Shop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            opacity: 0.7;
+            max-width: 600px;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.875rem;
+            opacity: 0.5;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        .yacht-section {
+            position: relative;
+            height: 400vh;
+        }
+
+        .yacht-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .yacht-sticky video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .yacht-overlay {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .yacht-overlay.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .yacht-overlay h2 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 40px rgba(0, 0, 0, 0.8);
+            margin-bottom: 0.5rem;
+        }
+
+        .yacht-overlay .price {
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            font-weight: 300;
+            opacity: 0.9;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .yacht-progress {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            z-index: 3;
+            overflow: hidden;
+        }
+
+        .yacht-progress-bar {
+            height: 100%;
+            background: #fff;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .footer {
+            height: 50vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .footer p {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .yacht-section {
+                height: 300vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>Yachts Shop</h1>
+        <p>Experience luxury on the open sea. Scroll to explore our collection.</p>
+        <span class="scroll-hint">Scroll to explore</span>
+    </section>
+
+    <section class="yacht-section" data-yacht="0">
+        <div class="yacht-sticky">
+            <video muted playsinline preload="auto" src="/videos/yacht_video1.mp4"></video>
+            <div class="yacht-overlay">
+                <h2>Ocean Explorer</h2>
+                <p class="price">$1,500,000</p>
+            </div>
+            <div class="yacht-progress"><div class="yacht-progress-bar"></div></div>
+        </div>
+    </section>
+
+    <section class="yacht-section" data-yacht="1">
+        <div class="yacht-sticky">
+            <video muted playsinline preload="auto" src="/videos/yacht_video2.mp4"></video>
+            <div class="yacht-overlay">
+                <h2>Sea Breeze</h2>
+                <p class="price">$850,000</p>
+            </div>
+            <div class="yacht-progress"><div class="yacht-progress-bar"></div></div>
+        </div>
+    </section>
+
+    <section class="yacht-section" data-yacht="2">
+        <div class="yacht-sticky">
+            <video muted playsinline preload="auto" src="/videos/yacht_video3.mp4"></video>
+            <div class="yacht-overlay">
+                <h2>Luxury Cruiser</h2>
+                <p class="price">$3,200,000</p>
+            </div>
+            <div class="yacht-progress"><div class="yacht-progress-bar"></div></div>
+        </div>
+    </section>
+
+    <section class="footer">
+        <p>Yachts Shop &mdash; Cloud Native Microservices</p>
+    </section>
+
+    <script>
+        (function () {
+            const sections = document.querySelectorAll('.yacht-section');
+            const videos = [];
+            const overlays = [];
+            const progressBars = [];
+
+            sections.forEach((section) => {
+                const video = section.querySelector('video');
+                const overlay = section.querySelector('.yacht-overlay');
+                const bar = section.querySelector('.yacht-progress-bar');
+                videos.push(video);
+                overlays.push(overlay);
+                progressBars.push(bar);
+            });
+
+            // Wait for video metadata to load
+            function onVideoReady(video) {
+                return new Promise((resolve) => {
+                    if (video.readyState >= 1) {
+                        resolve();
+                    } else {
+                        video.addEventListener('loadedmetadata', resolve, { once: true });
+                    }
+                });
+            }
+
+            // Scrub videos on scroll using requestAnimationFrame
+            let ticking = false;
+
+            function updateVideos() {
+                sections.forEach((section, i) => {
+                    const video = videos[i];
+                    const overlay = overlays[i];
+                    const bar = progressBars[i];
+
+                    if (!video.duration) return;
+
+                    const rect = section.getBoundingClientRect();
+                    const sectionHeight = section.offsetHeight;
+                    const viewportHeight = window.innerHeight;
+
+                    // Calculate scroll progress within this section
+                    // The sticky element locks when the section top reaches viewport top
+                    // Progress goes from 0 to 1 as we scroll through the section's extra height
+                    const scrollableDistance = sectionHeight - viewportHeight;
+                    const scrolled = -rect.top;
+                    const progress = Math.max(0, Math.min(1, scrolled / scrollableDistance));
+
+                    // Set video time
+                    const targetTime = progress * video.duration;
+                    if (Math.abs(video.currentTime - targetTime) > 0.01) {
+                        video.currentTime = targetTime;
+                    }
+
+                    // Update progress bar
+                    bar.style.width = (progress * 100) + '%';
+
+                    // Show overlay after 20% progress
+                    if (progress > 0.2 && progress < 0.95) {
+                        overlay.classList.add('visible');
+                    } else {
+                        overlay.classList.remove('visible');
+                    }
+                });
+
+                ticking = false;
+            }
+
+            function onScroll() {
+                if (!ticking) {
+                    ticking = true;
+                    requestAnimationFrame(updateVideos);
+                }
+            }
+
+            // Initialize
+            Promise.all(videos.map(onVideoReady)).then(() => {
+                // Pause all videos (we control playback via currentTime)
+                videos.forEach((v) => v.pause());
+                window.addEventListener('scroll', onScroll, { passive: true });
+                updateVideos();
+            });
+
+            // Also handle resize
+            window.addEventListener('resize', () => {
+                if (!ticking) {
+                    ticking = true;
+                    requestAnimationFrame(updateVideos);
+                }
+            }, { passive: true });
+        })();
+    </script>
+</body>
+</html>
