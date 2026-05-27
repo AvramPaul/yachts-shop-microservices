@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yachts Shop — Orders</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy:       #060f1e;
+            --navy-mid:   #0b1f38;
+            --navy-light: #112944;
+            --gold:       #c9a84c;
+            --gold-light: #e2c97e;
+            --white:      #f5f0e8;
+            --muted:      #7a8fa8;
+            --success:    #3aad6f;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--navy);
+            color: var(--white);
+            font-family: 'Lato', sans-serif;
+            font-weight: 300;
+            min-height: 100vh;
+        }
+
+        /* ── TOP BAR ──────────────────────────────────────────────────── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 3rem;
+            border-bottom: 1px solid rgba(201, 168, 76, 0.12);
+            position: sticky;
+            top: 0;
+            background: rgba(6, 15, 30, 0.92);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .topbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--white);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .topbar-brand span { color: var(--gold); }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.68rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover { color: var(--gold); }
+
+        .back-link svg { transition: transform 0.3s; }
+        .back-link:hover svg { transform: translateX(-4px); }
+
+        /* ── PAGE HEADER ─────────────────────────────────────────────── */
+        .page-header {
+            padding: 5rem 3rem 3.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-eyebrow {
+            font-size: 0.62rem;
+            letter-spacing: 0.55em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            color: var(--white);
+            margin-bottom: 0.75rem;
+        }
+
+        .page-sub {
+            font-size: 0.82rem;
+            color: var(--muted);
+            letter-spacing: 0.05em;
+        }
+
+        .divider {
+            width: 48px;
+            height: 1px;
+            background: var(--gold);
+            margin: 1.5rem 0 0;
+        }
+
+        /* ── STATS BAR ───────────────────────────────────────────────── */
+        .stats-bar {
+            display: flex;
+            gap: 2px;
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            padding: 0 3rem;
+        }
+
+        .stat {
+            flex: 1;
+            background: var(--navy-mid);
+            padding: 1.25rem 1.75rem;
+            min-width: 0;
+        }
+
+        .stat-label {
+            font-size: 0.6rem;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .stat-value.gold { color: var(--gold-light); }
+
+        /* ── ORDERS WRAPPER ──────────────────────────────────────────── */
+        .orders-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 3rem 6rem;
+        }
+
+        /* State messages */
+        .state-msg {
+            text-align: center;
+            padding: 5rem 2rem;
+            color: var(--muted);
+        }
+
+        .state-msg .icon { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+        .state-msg p { font-size: 0.82rem; letter-spacing: 0.08em; line-height: 1.9; }
+
+        .dots-anim::after {
+            content: '';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+
+        /* ── ORDER CARDS ─────────────────────────────────────────────── */
+        .orders-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .order-card {
+            display: grid;
+            grid-template-columns: 60px 1fr auto auto;
+            align-items: center;
+            gap: 2rem;
+            background: var(--navy-mid);
+            padding: 1.5rem 2rem;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .order-card.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .order-card:hover {
+            background: var(--navy-light);
+        }
+
+        .order-id {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .order-id-label {
+            font-size: 0.58rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 0.15rem;
+        }
+
+        .order-main {}
+
+        .order-customer {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: var(--white);
+            margin-bottom: 0.2rem;
+        }
+
+        .order-yacht {
+            font-size: 0.78rem;
+            color: var(--muted);
+            letter-spacing: 0.05em;
+        }
+
+        .order-price {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--gold-light);
+            text-align: right;
+        }
+
+        .order-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.9rem;
+            background: rgba(58, 173, 111, 0.12);
+            border: 1px solid rgba(58, 173, 111, 0.35);
+            color: var(--success);
+            font-size: 0.6rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .topbar { padding: 1.25rem 1.5rem; }
+            .page-header, .orders-wrapper { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .stats-bar { padding: 0 1.5rem; flex-direction: column; }
+            .order-card { grid-template-columns: 50px 1fr; gap: 1rem; }
+            .order-price, .order-badge { grid-column: 2; }
+        }
+
+        /* ── AUTO-REFRESH INDICATOR ─────────────────────────────────── */
+        .refresh-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.65rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .refresh-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* ── ANIMATIONS ──────────────────────────────────────────────── */
+        @keyframes dots {
+            0%   { content: ''; }
+            33%  { content: '.'; }
+            66%  { content: '..'; }
+            100% { content: '...'; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header { animation: fadeUp 0.7s 0.1s ease both; }
+        .stats-bar   { animation: fadeUp 0.7s 0.25s ease both; }
+    </style>
+</head>
+<body>
+
+<!-- ── TOP BAR ──────────────────────────────────────────────────────── -->
+<header class="topbar">
+    <a href="http://localhost:8081" class="topbar-brand">
+        ⚓ &nbsp;Yachts <span>Shop</span>
+    </a>
+    <a href="http://localhost:8081" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M12 7H2M6.5 2.5L2 7l4.5 4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Back to Fleet</span>
+    </a>
+</header>
+
+<!-- ── PAGE HEADER ──────────────────────────────────────────────────── -->
+<div class="page-header">
+    <p class="page-eyebrow">Management Console</p>
+    <h1 class="page-title">Order Log</h1>
+    <p class="page-sub">All confirmed vessel orders &mdash; auto-refreshes every 10 seconds</p>
+    <div class="divider"></div>
+</div>
+
+<!-- ── STATS ────────────────────────────────────────────────────────── -->
+<div class="stats-bar">
+    <div class="stat">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value" id="stat-count">—</div>
+    </div>
+    <div class="stat">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value gold" id="stat-revenue">—</div>
+    </div>
+    <div class="stat">
+        <div class="stat-label">Latest Customer</div>
+        <div class="stat-value" id="stat-customer" style="font-size:1.2rem">—</div>
+    </div>
+</div>
+
+<!-- ── ORDERS LIST ───────────────────────────────────────────────────── -->
+<div class="orders-wrapper">
+    <div class="refresh-bar">
+        <div class="refresh-dot"></div>
+        <span>Live &mdash; refreshing automatically</span>
+    </div>
+    <div id="orders-container">
+        <div class="state-msg">
+            <span class="icon">⚓</span>
+            <p><span class="dots-anim">Loading orders</span></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ── Load & render ────────────────────────────────────────────────────────────
+    async function loadOrders() {
+        const container = document.getElementById('orders-container');
+        try {
+            const res    = await fetch('/orders');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const orders = await res.json();
+
+            // Update stats
+            document.getElementById('stat-count').textContent = orders.length;
+            const totalRevenue = orders.reduce((s, o) => s + (o.pricePaid || o.price || 0), 0);
+            document.getElementById('stat-revenue').textContent =
+                '$' + new Intl.NumberFormat('en-US').format(totalRevenue);
+            if (orders.length) {
+                const last = orders[orders.length - 1];
+                document.getElementById('stat-customer').textContent =
+                    last.customerName || last.customer || '—';
+            }
+
+            if (!orders.length) {
+                container.innerHTML = `
+                    <div class="state-msg">
+                        <span class="icon">⚓</span>
+                        <p>No orders placed yet.<br>
+                        Head to the <a href="http://localhost:8081"
+                            style="color:var(--gold);text-decoration:none;">fleet</a>
+                        and place the first one.</p>
+                    </div>`;
+                return;
+            }
+
+            const grid = document.createElement('div');
+            grid.className = 'orders-grid';
+
+            // Show newest first
+            [...orders].reverse().forEach((order, i) => {
+                const card = document.createElement('div');
+                card.className = 'order-card';
+
+                const yachtName   = order.yachtName || ('Yacht #' + order.yachtId);
+                const price       = order.pricePaid ?? order.price ?? 0;
+                const customer    = order.customerName || order.customer || 'Unknown';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="order-id">${order.id}</div>
+                        <div class="order-id-label">Order ID</div>
+                    </div>
+                    <div class="order-main">
+                        <div class="order-customer">${customer}</div>
+                        <div class="order-yacht">${yachtName}</div>
+                    </div>
+                    <div class="order-price">
+                        $${new Intl.NumberFormat('en-US').format(price)}
+                    </div>
+                    <div class="order-badge">
+                        <div class="badge-dot"></div>
+                        Confirmed
+                    </div>
+                `;
+
+                grid.appendChild(card);
+
+                // Staggered reveal
+                setTimeout(() => card.classList.add('visible'), i * 80);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(grid);
+
+        } catch (err) {
+            container.innerHTML = `
+                <div class="state-msg">
+                    <span class="icon">⚠</span>
+                    <p>Could not load orders.<br>
+                    Make sure <code style="color:var(--gold)">order-service</code>
+                    is running on port 8082.</p>
+                </div>`;
+        }
+    }
+
+    // ── Init & auto-refresh ──────────────────────────────────────────────────────
+    loadOrders();
+    setInterval(loadOrders, 10_000);
+</script>
+</body>
+</html>
