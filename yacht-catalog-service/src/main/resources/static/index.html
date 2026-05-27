@@ -502,7 +502,7 @@
 
 <script>
     // ── Config ──────────────────────────────────────────────────────────────────
-    const ORDER_API   = 'http://localhost:8082';
+    const ORDER_API   = 'https://ca-order-service.kinddesert-607bfa92.germanywestcentral.azurecontainerapps.io';
     const CUSTOMER    = 'Paul Avram';
 
     // Free video sources (replace with your own if needed)
@@ -629,7 +629,7 @@
 
             // Redirecting to the receipt page
             setTimeout(() => {
-                window.location.href = `http://localhost:8082/order-receipt.html?id=${order.id}`;
+                window.location.href = `${ORDER_API}/order-receipt.html?id=${order.id}`;
             }, 1500);
 
         } catch (err) {
