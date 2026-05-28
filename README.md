@@ -1,3 +1,9 @@
+https://ca-order-service.kinddesert-607bfa92.germanywestcentral.azurecontainerapps.io
+
+https://ca-yacht-catalog.kinddesert-607bfa92.germanywestcentral.azurecontainerapps.io/
+
+
+
 # Yachts Shop - Cloud Native Microservices
 
 This project is a demonstration of refactoring a monolithic application into a Cloud Native microservices architecture using Java Spring Boot, Docker, and Azure Container Apps.
@@ -37,3 +43,13 @@ The CI/CD workflow is fully automated via **Azure DevOps Pipelines**:
 1. **CI (Continuous Integration):** Maven compiles the code and runs tests.
 2. **Containerization:** Multi-stage `Dockerfile`s build lightweight JRE images and push them to an **Azure Container Registry (ACR)**.
 3. **CD (Continuous Deployment):** Azure CLI commands automatically update the revisions in **Azure Container Apps**, allowing the services to discover each other via internal DNS (Service Discovery).
+
+
+![Slide](Yachts%20Shop%20Microservices%20Transformation_JPEG/Diapozitiv2.JPG)
+![Slide](Yachts%20Shop%20Microservices%20Transformation_JPEG/Diapozitiv3.JPG)
+![Slide](Yachts%20Shop%20Microservices%20Transformation_JPEG/Diapozitiv4.JPG)
+![Slide](Yachts%20Shop%20Microservices%20Transformation_JPEG/Diapozitiv5.JPG)
+![Slide](Yachts%20Shop%20Microservices%20Transformation_JPEG/Diapozitiv6.JPG)
+![Slide](Yachts%20Shop%20Microservices%20Transformation_JPEG/Diapozitiv7.JPG)
+![Slide](Yachts%20Shop%20Microservices%20Transformation_JPEG/Diapozitiv8.JPG)
+![Slide](Yachts%20Shop%20Microservices%20Transformation_JPEG/Diapozitiv9.JPG)
