@@ -2,7 +2,7 @@
 
 This project is a demonstration of refactoring a monolithic application into a Cloud Native microservices architecture using Java Spring Boot, Docker, and Azure Container Apps.
 
-## 🏗️ Decomposition Strategy
+##  Decomposition Strategy
 
 The initial monolithic e-commerce application was decomposed into two independent bounded contexts using Domain-Driven Design (DDD) principles:
 
@@ -17,7 +17,7 @@ The initial monolithic e-commerce application was decomposed into two independen
     - **Communication:** Uses **Spring Cloud OpenFeign** to make synchronous HTTP calls to the Catalog Service to verify yacht existence and fetch the current price before saving the order.
     - **Port:** `8082`
 
-## ⚖️ Architecture Trade-offs
+##  Architecture Trade-offs
 
 By moving from a monolith to this microservices architecture, several trade-offs were made:
 
@@ -31,7 +31,7 @@ By moving from a monolith to this microservices architecture, several trade-offs
 * **Network Latency:** In a monolith, fetching a yacht's price was an in-memory method call (~nanoseconds). Now, it is an HTTP network call, which introduces latency and potential network failure points.
 * **Data Consistency:** Because the databases are split, there are no SQL `JOIN`s or foreign keys enforcing integrity between an Order and a Yacht.
 
-## ☁️ DevOps & Deployment
+##  DevOps & Deployment
 
 The CI/CD workflow is fully automated via **Azure DevOps Pipelines**:
 1. **CI (Continuous Integration):** Maven compiles the code and runs tests.
